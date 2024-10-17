@@ -1,6 +1,5 @@
+import TasksView from '@/views/TasksView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import GroupsView from '@/views/GroupsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,12 +7,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: HomeView
+      component: TasksView
     },
     {
-      path: '/groups/:id',
-      name: 'Groups',
-      component: GroupsView
+      path: '/:id',
+      name: 'GroupTasks',
+      component: TasksView
     }
   ]
 })

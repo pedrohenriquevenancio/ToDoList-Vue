@@ -5,7 +5,11 @@ import MenuComponent from './components/MenuComponent.vue';
 <template>
   <main>
     <MenuComponent />
-    <RouterView />
+    <div class="flex justify-end">
+      <div class="w-10/12 px-10">
+        <RouterView />
+      </div>
+    </div>
   </main>
 </template>
 

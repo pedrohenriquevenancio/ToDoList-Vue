@@ -60,7 +60,7 @@
       </template>
       <template #default>Home</template>
     </fwb-sidebar-item>
-    <fwb-sidebar-item @click="showModal">
+    <fwb-sidebar-item @click="showModal('newTask')">
       <template #icon>
         <svg
           class="w-6 h-6 text-gray-800 dark:text-white"
@@ -101,12 +101,15 @@
         </svg>
       </template>
       <template #trigger> Lists </template>
-      <template #default>
+      <template v-if="lists && lists.length === 0">
+        <fwb-sidebar-item class="pl-11">No List available</fwb-sidebar-item>
+      </template>
+      <template #default v-if="lists && lists.length > 0">
         <fwb-sidebar-item
           class="pl-11"
           v-for="item in lists"
           v-bind:key="item.id"
-          @click="navigate('Groups', item.id)"
+          @click="navigate('GroupTasks', item.id)"
         >
           <div>
             {{ item.name }}
@@ -114,7 +117,7 @@
         </fwb-sidebar-item>
       </template>
     </fwb-sidebar-dropdown-item>
-    <fwb-sidebar-item @click="showModal">
+    <fwb-sidebar-item @click="showModal('newList')">
       <template #icon>
         <svg
           class="w-6 h-6 text-gray-800 dark:text-white"
@@ -135,17 +138,61 @@
       <template #default>Add New List</template>
     </fwb-sidebar-item>
   </fwb-sidebar>
-  <fwb-modal v-if="isShowModal" @close="closeModal">
+
+  <!-- MODAL -->
+  <fwb-modal v-if="newListModalShow" @close="closeModal">
     <template #header>
       <div class="flex items-center text-lg">New List</div>
     </template>
     <template #body>
-      <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">Form</p>
+      <div>
+        <fwb-input v-model="listName" placeholder="enter the list name" label="List name" />
+      </div>
+      <div class="row mt-3">
+        <fwb-p class="mb-2"> List color </fwb-p>
+        <div class="flex items-start">
+          <div class="w-50 pl-3 rounded-t-lg flex" v-for="color in colors" v-bind:key="color">
+            <fwb-radio v-model="selectedColor" name="radio" label="" :value="color" />
+            <span class="pl-2 w-6 h-5" :style="{ 'background-color': color }"></span>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template #footer>
+      <div class="flex justify-between">
+        <fwb-button @click="closeModal" color="alternative"> Cancel </fwb-button>
+        <fwb-button @click="createList" color="green"> Create </fwb-button>
+      </div>
+    </template>
+  </fwb-modal>
+  <fwb-modal v-if="newTaskModalShow" @close="closeModal">
+    <template #header>
+      <div class="flex items-center text-lg">New Task</div>
+    </template>
+    <template #body>
+      <div>
+        <fwb-input v-model="taskName" placeholder="enter the task title" label="Title" />
+      </div>
+      <div class="mt-3">
+        <fwb-input
+          v-model="descriptionTask"
+          placeholder="enter the task description"
+          label="Description"
+        />
+      </div>
+      <div class="mt-3">
+        <fwb-select
+          v-model="selectedGroupTask"
+          :options="options"
+          label="Select a list"
+          class="text-black"
+        />
+      </div>
     </template>
     <template #footer>
       <div class="flex justify-between">
         <fwb-button @click="closeModal" color="alternative"> Decline </fwb-button>
-        <fwb-button @click="closeModal" color="green"> I accept </fwb-button>
+        <fwb-button color="green"> I accept </fwb-button>
       </div>
     </template>
   </fwb-modal>
@@ -156,31 +203,32 @@ import {
   FwbSidebarItem,
   FwbSidebarDropdownItem,
   FwbButton,
-  FwbModal
+  FwbModal,
+  FwbInput,
+  FwbP,
+  FwbRadio,
+  FwbSelect
 } from 'flowbite-vue'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import getGroupTasks from '@/services/getGroupTasks'
+
+onMounted(() => {
+  getGroupTasks().then((data) => {
+    lists.value = data
+  })
+  console.log(lists.value)
+})
 
 const visible = ref(true)
 const toggleSidebar = () => {
   visible.value = !visible.value
-  console.log(visible.value)
 }
 
 const lists = ref([])
 
-onMounted(() => {
-  axios
-    .get('http://localhost:8080/api/task-group/')
-    .then((response) => {
-      lists.value = response.data
-    })
-    .catch((error) => console.log(error))
-})
-
 const router = useRouter()
-
 const navigate = (pathName, id = null) => {
   if (id) {
     router.push({ name: pathName, params: { id: id } })
@@ -189,12 +237,54 @@ const navigate = (pathName, id = null) => {
   }
 }
 
-const isShowModal = ref(false)
+const newListModalShow = ref(false)
+const listName = ref('')
+const selectedColor = ref('')
+const colors = ref(['#FF6347', '#FFD700', '#FF8C00', '#FFA07A', '#FF69B4', '#8A2BE2'])
 
-function showModal() {
-  isShowModal.value = true
+const newTaskModalShow = ref(false)
+const taskName = ref('')
+const descriptionTask = ref('')
+const selectedGroupTask = ref('')
+const options = ref([])
+
+function showModal(modal) {
+  if (modal == 'newList') {
+    newListModalShow.value = true
+    newTaskModalShow.value = false
+  } else {
+    newTaskModalShow.value = true
+    newListModalShow.value = false
+    options.value = [{ value: 'none', label: 'None' }].concat(
+      lists.value.map((item) => {
+        return { value: item.id, label: item.name }
+      })
+    )
+  }
 }
 function closeModal() {
-  isShowModal.value = false
+  if (newListModalShow.value) {
+    listName.value = ''
+    newListModalShow.value = false
+  } else {
+    newTaskModalShow.value = false
+  }
+}
+
+function createList() {
+  if (listName.value && selectedColor.value) {
+    axios
+      .post('http://localhost:8080/api/task-group/', {
+        name: listName.value,
+        color: selectedColor.value
+      })
+      .then(() => {
+        getGroupTasks().then((data) => {
+          lists.value = data
+        })
+        newListModalShow.value = false
+      })
+      .catch((error) => console.log(error))
+  }
 }
 </script>
