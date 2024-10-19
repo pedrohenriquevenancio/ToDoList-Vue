@@ -40,12 +40,12 @@
             stroke="currentColor"
             stroke-linecap="round"
             stroke-width="2"
-            d="M5 7h14M5 12h14M5 17h14"
+            d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
           />
         </svg>
       </button>
     </div>
-    <div class="flex justify-start px-2 pb-4">
+    <!-- <div class="flex justify-start px-2 pb-4">
       <button :class="`${buttonClass}`">
         <svg
           class="w-6 h-6 text-gray-800 dark:text-white"
@@ -84,7 +84,7 @@
           />
         </svg>
       </button>
-    </div>
+    </div> -->
   </div>
   <!-- <fwb-sidebar>
     <div class="flex justify-end">
