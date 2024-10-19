@@ -1,27 +1,94 @@
 <template>
-  <div class="flex justify-start pt-4 pl-4">
-    <fwb-button gradient="purple-blue" square @click="toggleSidebar">
-      <svg
-        class="w-6 h-6 text-gray-800 dark:text-white"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-width="2"
-          d="M5 7h14M5 12h14M5 17h14"
-        />
-      </svg>
-    </fwb-button>
+  <div
+    class="w-auto flex flex-col items-center pt-3 h-screen"
+    :style="{ backgroundColor: bgColor }"
+  >
+    <div class="flex justify-start px-2 pb-4">
+      <button :class="`${buttonClass}`" @click="toggleSidebar">
+        <svg
+          :style="{ color: textColor }"
+          class="w-6 h-6"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14 4v3a1 1 0 0 1-1 1h-3m4 10v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h2m11-3v10a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V7.87a1 1 0 0 1 .24-.65l2.46-2.87a1 1 0 0 1 .76-.35H18a1 1 0 0 1 1 1Z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="flex justify-start px-2 pb-4">
+      <button :class="`${buttonClass}`">
+        <svg
+          :style="{ color: textColor }"
+          class="w-6 h-6"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="2"
+            d="M5 7h14M5 12h14M5 17h14"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="flex justify-start px-2 pb-4">
+      <button :class="`${buttonClass}`">
+        <svg
+          class="w-6 h-6 text-gray-800 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="2"
+            d="M5 7h14M5 12h14M5 17h14"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="flex justify-start px-2 pb-4">
+      <button :class="`${buttonClass}`">
+        <svg
+          class="w-6 h-6 text-gray-800 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="2"
+            d="M5 7h14M5 12h14M5 17h14"
+          />
+        </svg>
+      </button>
+    </div>
   </div>
-  <fwb-sidebar v-if="visible">
+  <!-- <fwb-sidebar>
     <div class="flex justify-end">
-      <fwb-button gradient="purple-blue" square @click="toggleSidebar">
+      <fwb-button :class="`${buttonClass}`" @click="toggleSidebar">
         <svg
           class="w-6 h-6 text-gray-800 dark:text-white"
           aria-hidden="true"
@@ -137,7 +204,7 @@
       </template>
       <template #default>Add New List</template>
     </fwb-sidebar-item>
-  </fwb-sidebar>
+  </fwb-sidebar> -->
 
   <!-- MODAL -->
   <fwb-modal v-if="newListModalShow" @close="closeModal">
@@ -209,10 +276,11 @@ import {
   FwbRadio,
   FwbSelect
 } from 'flowbite-vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import getGroupTasks from '@/services/getGroupTasks'
+import { getButtonColor, getNavBackgroundColor, getTextColor } from '@/services/observables/theme'
 
 onMounted(() => {
   getGroupTasks().then((data) => {
@@ -221,10 +289,17 @@ onMounted(() => {
   console.log(lists.value)
 })
 
-const visible = ref(true)
+const emit = defineEmits({
+  toggleSidebar: []
+})
+
 const toggleSidebar = () => {
-  visible.value = !visible.value
+  emit('toggleSidebar')
 }
+
+const buttonClass = computed(() => getButtonColor())
+const bgColor = computed(() => getNavBackgroundColor())
+const textColor = computed(() => getTextColor())
 
 const lists = ref([])
 
